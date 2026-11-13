@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ma classe">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Ma classe de français</title>
 <meta name="robots" content="noindex, nofollow">
 <!-- Sécurité : la page ne charge rien depuis un autre site (tout est dans ce fichier) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <script>
 /* Effet aimant (comme rprof1.com et la vitrine) : une fois par visite, si les animations
@@ -246,7 +247,7 @@ html.aimant .titre{animation:none}
           </svg>
         </div>
         <div class="card-body">
-          <h2>Mes applis</h2>
+          <h2>Mes applis.</h2>
           <p>Les jeux et les activités de la classe.</p>
           <span class="btn">Entrer <svg class="fleche" width="10" height="10" aria-hidden="true"><use href="#fl"/></svg></span>
         </div>
@@ -265,7 +266,7 @@ html.aimant .titre{animation:none}
           </svg>
         </div>
         <div class="card-body">
-          <h2>Mon suivi</h2>
+          <h2>Mon suivi.</h2>
           <p>Mes activités et mes badges, avec mon code secret.</p>
           <span class="btn">Ouvrir <svg class="fleche" width="10" height="10" aria-hidden="true"><use href="#fl"/></svg></span>
         </div>
@@ -304,7 +305,7 @@ html.aimant .titre{animation:none}
    CONTENU — à modifier ici seulement
    ===================================================================== */
 const APP={
-  version:'1.1',                                  // +0.1 à chaque publication
+  version:'1.2',                                  // +0.1 à chaque publication
   lien:'https://ludo1104-rp.github.io/ma-classe/'   // adresse publiée (QR code)
 };
 const SUIVI='https://ludo1104-rp.github.io/suivi-eleves/';
