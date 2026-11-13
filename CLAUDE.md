@@ -1,7 +1,8 @@
-# Ma classe — l'espace des élèves
+# Ma classe de français — l'espace des élèves
 
 Public : **Ma classe**. Famille 1 (applis élèves).
-Accueil à deux portes : **Mes applis** (écran `#applis` dans la même page)
+Accueil : titre « Ma classe de français. », Memoji de Ludo (`ludo.png` du suivi,
+en base64) et « Je suis Ludo, ton professeur de français ». Puis deux portes : **Mes applis** (écran `#applis` dans la même page)
 et **Mon suivi** (ouvre https://ludo1104-rp.github.io/suivi-eleves/, code secret).
 Page **non référencée** : `noindex`, aucun lien depuis rprof1.com ni la vitrine.
 On la partage par QR code (bouton en haut) ou en webclip.
@@ -26,6 +27,7 @@ Pas de réglage Couleurs/Simple, pas de taille de texte : page de liens, sobre.
   navigateur, nouvel onglet, liens en ligne, QR). `python3 test_page.py`.
 
 ## Pièges
+- Anonymat : prénom « Ludo » et Memoji seulement, jamais le nom complet ni une vraie photo.
 - `verif_ipad.py` signale des faux problèmes ici : boutons « hors de l'écran »
   (la page défile), `visually-hidden` « coupé », point en pleine chute. Rien d'autre.
 - Le dépôt GitHub reste visible sur le profil : page discrète, pas secrète.

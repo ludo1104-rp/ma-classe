@@ -1,4 +1,4 @@
-# Ma classe
+# Ma classe de français
 
 L'espace des élèves : leurs applis de classe et leur suivi, au même endroit.
 
