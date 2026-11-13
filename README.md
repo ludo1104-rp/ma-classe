@@ -1,8 +1,8 @@
-# Mes applis
+# Ma classe
 
-La page d'accueil des élèves : leurs applis de classe et leur suivi, au même endroit.
+L'espace des élèves : leurs applis de classe et leur suivi, au même endroit.
 
-Ouvrir l'application : https://ludo1104-rp.github.io/mes-applis/
+Ouvrir l'application : https://ludo1104-rp.github.io/ma-classe/
 
 ---
 

@@ -1,7 +1,7 @@
-"""Test de bout en bout de « Mes applis » (Playwright, sans interface).
+"""Test de bout en bout de « Ma classe » (Playwright, sans interface).
 Usage : python3 test_page.py [chemin/index.html]
-Vérifie : aucune erreur JS, liens uniques et en ligne, nouvel onglet,
-« Dernière ouverte » gardée après rechargement, aide, réglages, QR code."""
+Vérifie : accueil à 2 portes, écran Mes applis, retour, bouton Retour du
+navigateur, liens en nouvel onglet et en ligne, QR code, aucune erreur JS."""
 import sys, pathlib, urllib.request
 from playwright.sync_api import sync_playwright
 
@@ -18,48 +18,56 @@ with sync_playwright() as p:
     page = ctx.new_page()
     erreurs = []
     page.on('pageerror', lambda e: erreurs.append(str(e)))
-    page.goto(url); page.wait_for_timeout(400)
+    page.goto(url); page.wait_for_timeout(500)
+
+    vis = lambda s: page.locator(s).is_visible()
+    ok(vis('#ecran-accueil') and not vis('#ecran-applis'), 'accueil affiché seul')
+    ok(page.locator('.porte').count() == 2, 'deux portes : Mes applis et Mon suivi')
+    ok(not vis('#retour'), 'pas de bouton Accueil sur l’accueil')
+    ok(page.locator('meta[name=robots][content*=noindex]').count() == 1, 'page non référencée (noindex)')
+    ok(page.evaluate("document.fonts.check('600 20px Figtree')"), 'police Figtree chargée')
 
     data = page.evaluate('window.__appli')
-    liens = [data['suivi']['lien']] + [a['lien'] for a in data['applis']]
-    ids = [a['id'] for a in data['applis']]
-    ok(len(set(ids)) == len(ids), f'{len(ids)} applis, identifiants uniques')
-    ok(len(set(liens)) == len(liens), 'liens uniques')
-    ok(page.locator('a.tile').count() == len(ids), 'une tuile par appli')
-    ok(page.locator('a.suivi').count() == 1, 'tuile Mon suivi présente')
-    cibles = page.eval_on_selector_all('a[data-id]', 'l=>l.map(a=>a.target+"|"+a.rel)')
-    ok(all(c == '_blank|noopener' for c in cibles), 'tous les liens ouvrent un nouvel onglet')
-    ok(page.locator('meta[name=robots][content*=noindex]').count() == 1, 'page non référencée (noindex)')
+    ok([a['nom'] for a in data['applis']] == ['Halloween', 'Minecraft', 'Dictée flash', 'La Foire de Liège'], 'les 4 applis demandées, dans l’ordre')
+    liens = [data['suivi']] + [l[1] for a in data['applis'] for l in a['liens']]
+    ok(len(set(liens)) == len(liens), f'{len(liens)} liens, sans doublon')
 
-    # Clic sur une appli : nouvel onglet + « Dernière ouverte »
+    # Mon suivi : nouvel onglet vers la page du suivi
     with ctx.expect_page() as nouvel:
-        page.locator('a.tile[data-id=a3]').click()
+        page.click('[data-porte=suivi]')
+    ok(nouvel.value.url.rstrip('/').endswith('suivi-eleves'), 'Mon suivi ouvre la page du suivi')
     nouvel.value.close()
-    ok(page.locator('a.tile[data-id=a3] .recent').count() == 1, 'badge « Dernière ouverte » après le clic')
-    page.reload(); page.wait_for_timeout(300)
-    ok(page.locator('.recent').count() == 1 and page.locator('a.tile[data-id=a3] .recent').count() == 1, 'badge gardé après rechargement')
+    ok(vis('#ecran-accueil'), 'l’accueil reste affiché derrière')
+
+    # Mes applis
+    page.click('[data-porte=applis]'); page.wait_for_timeout(300)
+    ok(vis('#ecran-applis') and not vis('#ecran-accueil'), 'écran Mes applis')
+    ok(page.locator('#ecran-applis .card').count() == 4, '4 cartes')
+    ok(vis('#retour'), 'bouton Accueil visible')
+    cibles = page.eval_on_selector_all('#ecran-applis a.btn', 'l=>l.map(a=>a.target+"|"+a.rel)')
+    ok(len(cibles) == 6 and all(c == '_blank|noopener' for c in cibles), '6 boutons, tous en nouvel onglet')
     with ctx.expect_page() as nouvel:
-        page.locator('a.tile[data-id=a1]').click()
+        page.locator('.card[data-id=foire] a.btn').click()
     nouvel.value.close()
-    ok(page.locator('.recent').count() == 1 and page.locator('a.tile[data-id=a1] .recent').count() == 1, 'un seul badge, déplacé')
 
-    # Ancienne valeur inconnue : aucune erreur
-    page.evaluate("localStorage.setItem('mes-applis-derniere','\"zz9\"')"); page.reload(); page.wait_for_timeout(300)
-    ok(page.locator('.recent').count() == 0, 'identifiant supprimé ignoré sans erreur')
+    # Retour : bouton de la page, puis bouton Retour du navigateur
+    page.click('#retour'); page.wait_for_timeout(300)
+    ok(vis('#ecran-accueil') and not vis('#retour'), 'bouton Accueil ramène à l’accueil')
+    page.click('[data-porte=applis]'); page.wait_for_timeout(200)
+    page.go_back(); page.wait_for_timeout(300)
+    ok(vis('#ecran-accueil'), 'bouton Retour du navigateur ramène à l’accueil')
 
-    # Aide, réglages, QR
-    page.click('#helpBtn'); ok(page.locator('#helpModal.on').count() == 1, 'aide ouverte')
-    for _ in range(3): page.click('#helpNext')
-    ok(page.locator('#helpModal.on').count() == 0, 'aide refermée après 3 étapes')
-    page.click('#reglBtn'); page.click('[data-sty=simple]')
-    ok(page.evaluate("document.body.classList.contains('simple')"), 'style Simple')
-    page.click('#reglClose'); page.reload(); page.wait_for_timeout(300)
-    ok(page.evaluate("document.body.classList.contains('simple')"), 'style gardé après rechargement')
+    # Ouverture directe de #applis, puis Accueil
+    page.goto(url + '#applis'); page.reload(); page.wait_for_timeout(300)
+    ok(vis('#ecran-applis'), 'adresse #applis ouvre Mes applis')
+    page.click('#retour'); page.wait_for_timeout(300)
+    ok(vis('#ecran-accueil'), 'puis Accueil fonctionne')
+
     page.click('#qrBtn'); ok(page.locator('#qrModal.on .qr-image svg').count() == 1, 'QR code affiché')
+    page.keyboard.press('Escape'); ok(page.locator('#qrModal.on').count() == 0, 'QR fermé avec Échap')
     ok(not erreurs, 'aucune erreur JavaScript ' + ('; '.join(erreurs) if erreurs else ''))
     nav.close()
 
-# Les adresses répondent-elles ?
 for l in liens:
     try:
         code = urllib.request.urlopen(urllib.request.Request(l, method='HEAD'), timeout=10).status
